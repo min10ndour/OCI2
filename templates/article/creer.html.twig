@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+Creer
+{% endblock %}
+
+
+{% block body %}
+<div style="text-align: center">
+  <h1>Rédiger un article</h1>
+  <form style="display: inline-block" method="POST" action="">
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="titre">Titre</label>
+        <input type="text" class="form-control" name="titre" id="titre" placeholder="Titre de l'article">
+      </div>
+      <div class="form-group col-md-6">
+        <label for="auteur">Auteur</label>
+        <input type="text" class="form-control" name="auteur" id="auteur" placeholder="Auteur">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="descript">Description</label>
+      <input type="text" class="form-control" name="descript" id="descript" placeholder="Description">
+    </div>
+    <div class="form-group col-md-15">
+      <label for="contenu">Contenu</label>
+      <textarea class="form-control" name="contenu" id="contenu" cols="30" rows="10" placeholder="Contenu de l'article"></textarea>
+      <!-- <input type="text" class="form-control" id="contenu" placeholder="Contenu de l'article"> -->
+    </div>
+    <div class="form-group col-md-15">
+      <label for="date">Date</label>
+      <input type="date" class="form-control" name="date" id="date">
+    </div>
+    <button type="submit" name="creer" class="btn btn-primary">Valider</button>
+  </form>
+</div>
+{% endblock %}
+
+

@@ -17,7 +17,7 @@
 
 		public function index()
 		{
-			return new Response("Bienvenue OCI !");
+			return $this->render('home.html.twig');
 		}
 
 		/**

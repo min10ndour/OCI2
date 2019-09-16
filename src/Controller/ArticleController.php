@@ -30,36 +30,64 @@ class ArticleController extends AbstractController
             'articles' => $articles
         ]);
     }
+
     /**
-     *@Route("/single/{{id}}", name="single")
+     *@Route("/read/{{id}}", name="read")
      */
-    public function single(int $id)
+    public function read(int $id)
     {
     	
     }
 
     /**
-     * @Route("/create", name="create")
+     * @Route("/creer", name="creer")
      */
     public function create()
     {
-    	$article = new Article();
+    	if (isset($_POST['creer'])) {
+            $article = new Article();
 
-    	$article->setTitre('4eme Article');
-    	$article->setDate(new \DateTime());
-    	$article->setDescription("Ceci est le 4eme article.");
-    	$article->setContenu("Bonjour Humains. Ceci est notre 4eme article. Nous sommes là pour vous rencontrer. Bonjour !");
-    	$article->setAuteur('Mindiss');
+            $article->setTitre($_POST['titre']);
+            $article->setDate(new \DateTime($_POST['date']));
+            $article->setDescription($_POST['descript']);
+            $article->setContenu($_POST['contenu']);
+            $article->setAuteur($_POST['auteur']);
 
-    	//First of all, you need the entity manager of doctrine
-    	$em = $this->getDoctrine()->getManager();
+        //First of all, you need the entity manager of doctrine
+            $em = $this->getDoctrine()->getManager();
 
-    	//INSERT
-    	$em->persist($article);
+        //INSERT
+            $em->persist($article);
 
-    	//FLUSH VALIDE L'INSERTION
-    	$em->flush();
+        //FLUSH VALIDE L'INSERTION
+            $em->flush();
 
-    	return $this->redirectToRoute('article');
+            return $this->redirectToRoute('article');
+        }else{
+            return $this->render('article/creer.html.twig');
+        }
+    }
+
+    /**
+     *@Route("/del/{{id}}", name="del")
+     */
+    public function delete(int $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $article = $this->getDoctrine()->getRepository(Article::Class)->find($id);
+        $em->remove($article);
+        $em->flush();
+        return $this->redirectToRoute('article');
+    }
+
+    /**
+     *@Route("/modif/{{id}}", name="modif")
+     */
+    public function update(int $id)
+    {
+        
+        /*$em = $this->getDoctrine()->getManager();
+        $em->prepare(update($id));
+        $em->flush();*/
     }
 }
