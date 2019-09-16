@@ -36,7 +36,16 @@ class ArticleController extends AbstractController
      */
     public function read(int $id)
     {
-    	
+    	$em = $this->getDoctrine()->getManager();
+        $article = $this->getDoctrine()->getRepository(Article::Class)->find($id);
+
+        $date = $article->getDate()->format('Y-m-d H:i:s');
+
+        $em->flush();
+
+        return $this->render('article/read.html.twig',
+            ['article' => $article, 'date' => $date]
+        );
     }
 
     /**
@@ -52,6 +61,7 @@ class ArticleController extends AbstractController
             $article->setDescription($_POST['descript']);
             $article->setContenu($_POST['contenu']);
             $article->setAuteur($_POST['auteur']);
+            $article->setLastModif(new \DateTime());
 
         //First of all, you need the entity manager of doctrine
             $em = $this->getDoctrine()->getManager();
@@ -85,9 +95,24 @@ class ArticleController extends AbstractController
      */
     public function update(int $id)
     {
-        
-        /*$em = $this->getDoctrine()->getManager();
-        $em->prepare(update($id));
-        $em->flush();*/
+        if (isset($_POST['modifier'])) {
+            $em = $this->getDoctrine()->getManager();
+            $article = $this->getDoctrine()->getRepository(Article::Class)->find($id);
+            $em->refresh($article);
+            $em->flush();
+
+            return $this->redirectToRoute('read', ['id'  => $id]);
+        }else{
+            $em = $this->getDoctrine()->getManager();
+            $article = $this->getDoctrine()->getRepository(Article::Class)->find($id);
+
+            //$em->flush();
+
+            $date = $article->getDate()->format('Y-m-d H:i:s');
+
+            return $this->render('article/modif.html.twig',
+                ['article' => $article, 'date' => $date]
+            );
+        }
     }
 }

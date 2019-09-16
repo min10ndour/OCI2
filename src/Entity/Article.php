@@ -22,7 +22,7 @@ class Article
     private $titre;
 
     /**
-     * @ORM\Column(type="time", nullable=true)
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $date;
 
@@ -40,6 +40,11 @@ class Article
      * @ORM\Column(type="string", length=11)
      */
     private $auteur;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $lastModif;
 
     public function getId(): ?int
     {
@@ -102,6 +107,18 @@ class Article
     public function setAuteur(string $auteur): self
     {
         $this->auteur = $auteur;
+
+        return $this;
+    }
+
+    public function getLastModif(): ?\DateTimeInterface
+    {
+        return $this->lastModif;
+    }
+
+    public function setLastModif(\DateTimeInterface $lastModif): self
+    {
+        $this->lastModif = $lastModif;
 
         return $this;
     }

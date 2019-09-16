@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+"{{ article.titre }}"
+{% endblock %}
+
+
+{% block body %}
+<div style="text-align: center">
+	<h2>{{ article.titre }}</h2>
+	<h3>{{ article.description }}</h3>
+	<p>{{ article.contenu }}</p>
+	<p>
+		<p  style="text-align: left">Auteur: {{ article.auteur }}</p>
+		<p  style="text-align: right">Date: {{ date }}</p>
+	</p>
+</div>
+{% endblock %}
