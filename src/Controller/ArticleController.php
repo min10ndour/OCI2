@@ -97,8 +97,16 @@ class ArticleController extends AbstractController
     {
         if (isset($_POST['modifier'])) {
             $em = $this->getDoctrine()->getManager();
+            
             $article = $this->getDoctrine()->getRepository(Article::Class)->find($id);
-            $em->refresh($article);
+
+            $article->setTitre($_POST['titre']);
+            $article->setDate(new \DateTime($_POST['date']));
+            $article->setDescription($_POST['descript']);
+            $article->setContenu($_POST['contenu']);
+            $article->setAuteur($_POST['auteur']);
+            $article->setLastModif(new \DateTime());
+            
             $em->flush();
 
             return $this->redirectToRoute('read', ['id'  => $id]);
