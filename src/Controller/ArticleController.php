@@ -4,6 +4,9 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use App\Entity\Article;
 
 class ArticleController extends AbstractController
@@ -51,16 +54,32 @@ class ArticleController extends AbstractController
     /**
      * @Route("/creer", name="creer")
      */
-    public function create()
+    public function create(Request $request)
     {
-    	if (isset($_POST['creer'])) {
-            $article = new Article();
+        $article = new Article();
 
-            $article->setTitre($_POST['titre']);
-            $article->setDate(new \DateTime($_POST['date']));
-            $article->setDescription($_POST['descript']);
-            $article->setContenu($_POST['contenu']);
-            $article->setAuteur($_POST['auteur']);
+        $form = $this->createFormBuilder($article)
+        ->add('titre', TextType::class)
+        ->add('description', TextType::class)
+        ->add('contenu', TextType::class)
+        ->add('auteur', TextType::class)
+        ->add('creer', SubmitType::class)
+        ->getForm();
+
+        $form->handleRequest($request );
+
+    	if ($form->isSubmitted() && $form->isValid()) {
+
+            $titre = $form['titre']->getData();
+            $description = $form['description']->getData();
+            $contenu = $form['contenu']->getData();
+            $auteur = $form['auteur']->getData();
+
+            $article->setTitre($titre/*$_POST['titre']*/);
+            $article->setDate(new \DateTime());
+            $article->setDescription($description/*$_POST['descript']*/);
+            $article->setContenu($contenu/*$_POST['contenu']*/);
+            $article->setAuteur($auteur/*$_POST['auteur']*/);
             $article->setLastModif(new \DateTime());
 
         //First of all, you need the entity manager of doctrine
@@ -74,7 +93,7 @@ class ArticleController extends AbstractController
 
             return $this->redirectToRoute('article');
         }else{
-            return $this->render('article/creer.html.twig');
+            return $this->render('article/creer2.html.twig', array('creerForm' => $form->createView()));
         }
     }
 
@@ -100,7 +119,9 @@ class ArticleController extends AbstractController
             
             $article = $this->getDoctrine()->getRepository(Article::Class)->find($id);
 
-            $article->setTitre($_POST['titre']);
+            //UTILISER METHODE FORM CREATOR
+
+            $article->setTitre(/*$_POST['titre']*/);
             $article->setDate(new \DateTime($_POST['date']));
             $article->setDescription($_POST['descript']);
             $article->setContenu($_POST['contenu']);
