@@ -6,8 +6,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use App\Entity\Article;
+use App\Entity\Categorie;
 
 class ArticleController extends AbstractController
 {
@@ -42,7 +47,7 @@ class ArticleController extends AbstractController
     	$em = $this->getDoctrine()->getManager();
         $article = $this->getDoctrine()->getRepository(Article::Class)->find($id);
 
-        $date = $article->getDate()->format('Y-m-d H:i:s');
+        $date = $article->getDate()->format('Y-m-d');
 
         $em->flush();
 
@@ -61,7 +66,9 @@ class ArticleController extends AbstractController
         $form = $this->createFormBuilder($article)
         ->add('titre', TextType::class)
         ->add('description', TextType::class)
-        ->add('contenu', TextType::class)
+        ->add('contenu', TextareaType::class, array('attr' => array('rows' => 10, 'cols' => 30)))
+        ->add('image', FileType::class, array('mapped' => false))
+        ->add('categorie', EntityType::class, array('class' => Categorie::class))
         ->add('auteur', TextType::class)
         ->add('creer', SubmitType::class)
         ->getForm();
@@ -74,12 +81,20 @@ class ArticleController extends AbstractController
             $description = $form['description']->getData();
             $contenu = $form['contenu']->getData();
             $auteur = $form['auteur']->getData();
+            $image = $form['image']->getData();
 
             $article->setTitre($titre/*$_POST['titre']*/);
             $article->setDate(new \DateTime());
             $article->setDescription($description/*$_POST['descript']*/);
             $article->setContenu($contenu/*$_POST['contenu']*/);
             $article->setAuteur($auteur/*$_POST['auteur']*/);
+            if ($image) {
+                $fileName = md5(uniqid()).'.'.$image->guessClientExtension();
+
+                $image->move($this->getParameter('images_dir'), $fileName);
+
+                $article->setImage($fileName);
+            }
             $article->setLastModif(new \DateTime());
 
         //First of all, you need the entity manager of doctrine
@@ -90,6 +105,11 @@ class ArticleController extends AbstractController
 
         //FLUSH VALIDE L'INSERTION
             $em->flush();
+
+            $this->addFlash(
+                'Success', 
+                "Article ajouté."
+            );
 
             return $this->redirectToRoute('article');
         }else{
@@ -112,35 +132,53 @@ class ArticleController extends AbstractController
     /**
      *@Route("/modif/{{id}}", name="modif")
      */
-    public function update(int $id)
+    public function update(int $id, Request $request)
     {
-        if (isset($_POST['modifier'])) {
+        $article = $this->getDoctrine()->getRepository(Article::Class)->find($id);
+
+        $form = $this->createFormBuilder($article)
+        ->add('titre', TextType::class)
+        ->add('date', DateTimeType::class, /*array('attr' => array('readonly' => 'readonly'))*/)
+        ->add('description', TextType::class)
+        ->add('contenu', TextType::class)
+        ->add('auteur', TextType::class)
+        ->add('categorie', EntityType::class, array('class' => Categorie::class))
+        ->add('modif', SubmitType::class)
+        ->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()){
+
             $em = $this->getDoctrine()->getManager();
-            
-            $article = $this->getDoctrine()->getRepository(Article::Class)->find($id);
 
             //UTILISER METHODE FORM CREATOR
 
-            $article->setTitre(/*$_POST['titre']*/);
-            $article->setDate(new \DateTime($_POST['date']));
-            $article->setDescription($_POST['descript']);
-            $article->setContenu($_POST['contenu']);
-            $article->setAuteur($_POST['auteur']);
+            $titre = $form['titre']->getData();
+            $date = $form['date']->getData();
+            $description = $form['description']->getData();
+            $contenu = $form['contenu']->getData();
+            $auteur = $form['auteur']->getData();
+            $categorie = $form['categorie']->getData();
+
+            $article->setTitre($titre/*$_POST['titre']*/);
+            $article->setDate($date);
+            $article->setDescription($description);
+            $article->setContenu($contenu);
+            $article->setAuteur($auteur);
+            $article->setCategorie($categorie);
             $article->setLastModif(new \DateTime());
             
             $em->flush();
 
             return $this->redirectToRoute('read', ['id'  => $id]);
         }else{
-            $em = $this->getDoctrine()->getManager();
             $article = $this->getDoctrine()->getRepository(Article::Class)->find($id);
 
-            //$em->flush();
+            $date = $article->getDate()->format('Y-m-d');
 
-            $date = $article->getDate()->format('Y-m-d H:i:s');
-
-            return $this->render('article/modif.html.twig',
-                ['article' => $article, 'date' => $date]
+            return $this->render('article/modif2.html.twig',
+                ['article' => $article, 'date' => $date, 'modiForm' => $form->createView()]
             );
         }
     }

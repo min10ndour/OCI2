@@ -9,7 +9,8 @@
 <div style="text-align: center">
 	<h2>{{ article.titre }}</h2>
 	<h3>{{ article.description }}</h3>
-	<p>{{ article.contenu }}</p>
+	<p>{{ article.contenu|capitalize }}</p>
+	<img src="{{ asset('/uploads/' ~ article.image) }}" alt="img" />
 	<p>
 		<p  style="text-align: left">Auteur: {{ article.auteur }}</p>
 		<p  style="text-align: right">Date: {{ date }}</p>

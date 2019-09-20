@@ -9,6 +9,10 @@
 </style>
 
 <div class="example-wrapper">
+	{% for msg in app.flashes('Success') %}
+	    <div class="alert alert-success">{{ msg }}</div>
+	{% endfor %}
+
 	<h1>Liste de articles</h1>
 	
 	<table class="table">
@@ -17,6 +21,7 @@
 				<th scope="col">Id</th>
 				<th scope="col">Titre</th>
 				<th scope="col">Description</th>
+				<th scope="col">Catégorie</th>
 				<th scope="col">Auteur</th>
 				<th></th>
 				<th></th>
@@ -29,6 +34,7 @@
 				<th scope="row">{{article.id}}</th>
 				<td>{{article.titre}}</td>
 				<td>{{article.description}}</td>
+				<td>{{article.categorie.name}}</td>
 				<td>{{article.auteur}}</td>
 				<td><a href="{{ path('read', { 'id':article.id }) }}">Lire</a></td>
 				<td><a href="{{ path('modif', { 'id':article.id }) }}">Modifier</a></td>
